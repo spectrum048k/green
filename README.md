@@ -1,2 +1,0 @@
-# green
-The green repo

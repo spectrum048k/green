@@ -5,7 +5,7 @@ variables:
   terraformVersion: '1.8.4'
 
 stages:
-- stage: Deploy
+- stage: Plan
   jobs:
   - job: TerraformDeploy
     displayName: 'Deploy Terraform Resources'

@@ -44,12 +44,7 @@ stages:
   jobs:
   - job: TerraformApply
     displayName: 'Terraform Apply'
-    steps:
-    - task: DownloadPipelineArtifact@2
-      inputs:
-        artifactName: 'tfplan'
-        targetPath: '$(workingDirectory)'
-    
+    steps:   
     - script: |
         terraform init -input=false
       displayName: 'Terraform Init'
@@ -59,6 +54,11 @@ stages:
         AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
         AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
 
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        artifactName: 'tfplan'
+        targetPath: '$(workingDirectory)'
+        
     - script: |
         terraform apply -auto-approve tfplan
       displayName: 'Terraform Apply'

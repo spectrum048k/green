@@ -1,0 +1,48 @@
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  terraformVersion: '1.8.4'
+
+stages:
+- stage: Deploy
+  jobs:
+  - job: TerraformDeploy
+    displayName: 'Deploy Terraform Resources'
+    steps:
+
+    - script: |
+        terraform init -input=false
+      displayName: 'Terraform Init'
+
+    - script: |
+        terraform plan -out=tfplan -input=false
+      displayName: 'Terraform Plan'
+      env:
+        AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+        AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+        AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
+
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: 'tfplan'
+        artifactName: 'tfplan'
+        publishLocation: 'pipeline'
+
+- stage: Apply
+  dependsOn: Plan
+  jobs:
+  - job: TerraformApply
+    displayName: 'Terraform Apply'
+    steps:
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        artifactName: 'tfplan'
+    
+    - script: |
+        terraform apply -input=false tfplan
+      displayName: 'Terraform Apply'
+      env:
+        AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+        AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+        AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)

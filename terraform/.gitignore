@@ -23,3 +23,5 @@ crash.log
 # Exclude CLI configuration files
 cli.tfrc*
 
+# init scripts
+**/init.sh

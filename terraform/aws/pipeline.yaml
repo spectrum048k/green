@@ -36,7 +36,7 @@ stages:
 
     - script: |
         pip install checkov
-        checkov -d $(workingDirectory)
+        checkov -d .
       displayName: 'Run Checkov Scan'
       condition: ${{ eq(parameters.runCheckovScan, true) }}
       workingDirectory: $(workingDirectory)

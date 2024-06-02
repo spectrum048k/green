@@ -5,6 +5,8 @@ variables:
 - group: 'AWS_TERRAFORM_PIPELINE'
 - name: workingDirectory
   value: 'terraform/aws'
+- name: bucketName
+  value: 's3-eoghank-mgmt-terraform-aws-test-pipeline'
 
 stages:
 - stage: Plan
@@ -23,7 +25,7 @@ stages:
         AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
 
     - script: |
-        terraform plan -out=tfplan -input=false
+        terraform plan -out=tfplan -input=false -var "bucket_name=$(bucketName)"
       displayName: 'Terraform Plan'
       workingDirectory: $(workingDirectory)
       env:

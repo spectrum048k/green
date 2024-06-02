@@ -42,6 +42,15 @@ stages:
       workingDirectory: $(workingDirectory)
 
     - script: |
+        terraform test -var "bucket_name=$(bucketName)"
+      displayName: 'Run Terraform Tests'
+      workingDirectory: $(workingDirectory)
+      env:
+        AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+        AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+        AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
+
+    - script: |
         terraform plan -out=tfplan -var "bucket_name=$(bucketName)"
       displayName: 'Terraform Plan'
       workingDirectory: $(workingDirectory)
@@ -86,6 +95,7 @@ stages:
         AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
 
 - stage: Destroy
+  dependsOn: Apply
   condition: ${{ eq(parameters.destroyResources, true) }}
   jobs:
   - job: TerraformDestroy

@@ -75,7 +75,7 @@ stages:
         AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
 
 - stage: Destroy
-  condition: and(succeeded(), eq(parameters.destroyResources, true))
+  condition: and(succeeded(), eq(parameters.destroyResources, 'true'))
   jobs:
   - job: TerraformDestroy
     displayName: 'Terraform Destroy'

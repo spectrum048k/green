@@ -1,6 +1,12 @@
 pool:
   vmImage: 'ubuntu-latest'
-  
+
+parameters:
+- name: destroyResources
+  displayName: 'Destroy Resources'
+  type: boolean
+  default: true
+
 variables:
 - group: 'AWS_TERRAFORM_PIPELINE'
 - name: workingDirectory
@@ -58,10 +64,35 @@ stages:
       inputs:
         artifactName: 'tfplan'
         targetPath: '$(workingDirectory)'
-        
+
     - script: |
         terraform apply -auto-approve tfplan
       displayName: 'Terraform Apply'
+      workingDirectory: $(workingDirectory)
+      env:
+        AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+        AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+        AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
+
+- stage: Destroy
+  condition: and(succeeded(), eq(parameters.destroyResources, true))
+  jobs:
+  - job: TerraformDestroy
+    displayName: 'Terraform Destroy'
+    steps:
+
+    - script: |
+        terraform init -input=false
+      displayName: 'Terraform Init'
+      workingDirectory: $(workingDirectory)
+      env:
+        AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+        AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+        AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
+
+    - script: |
+        terraform destroy -auto-approve -var "bucket_name=$(bucketName)"
+      displayName: 'Terraform Destroy'
       workingDirectory: $(workingDirectory)
       env:
         AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)

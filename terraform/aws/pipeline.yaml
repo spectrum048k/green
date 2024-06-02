@@ -25,7 +25,7 @@ stages:
         AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
 
     - script: |
-        terraform plan -out=tfplan -input=false -var "bucket_name=$(bucketName)"
+        terraform plan -out=tfplan -var "bucket_name=$(bucketName)"
       displayName: 'Terraform Plan'
       workingDirectory: $(workingDirectory)
       env:
@@ -51,7 +51,7 @@ stages:
         targetPath: '$(workingDirectory)'
     
     - script: |
-        terraform apply -input=false tfplan
+        terraform apply -auto-approve tfplan
       displayName: 'Terraform Apply'
       workingDirectory: $(workingDirectory)
       env:

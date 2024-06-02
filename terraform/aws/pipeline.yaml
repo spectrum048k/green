@@ -2,7 +2,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  terraformVersion: '1.8.4'
+- group: 'AWS_TERRAFORM_PIPELINE'
 
 stages:
 - stage: Plan

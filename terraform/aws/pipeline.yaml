@@ -2,7 +2,13 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
+  terraformVersion: '1.0.11'
+  workingDirectory: 'terraform'
+  
+variables:
 - group: 'AWS_TERRAFORM_PIPELINE'
+- name: workingDirectory
+  value: 'terraform/aws'
 
 stages:
 - stage: Plan
@@ -14,10 +20,12 @@ stages:
     - script: |
         terraform init -input=false
       displayName: 'Terraform Init'
+      workingDirectory: $(workingDirectory)
 
     - script: |
         terraform plan -out=tfplan -input=false
       displayName: 'Terraform Plan'
+      workingDirectory: $(workingDirectory)
       env:
         AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
         AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
@@ -25,7 +33,7 @@ stages:
 
     - task: PublishPipelineArtifact@1
       inputs:
-        targetPath: 'tfplan'
+        targetPath: '$(workingDirectory)/tfplan'
         artifactName: 'tfplan'
         publishLocation: 'pipeline'
 
@@ -38,10 +46,12 @@ stages:
     - task: DownloadPipelineArtifact@2
       inputs:
         artifactName: 'tfplan'
+        targetPath: '$(workingDirectory)'
     
     - script: |
         terraform apply -input=false tfplan
       displayName: 'Terraform Apply'
+      workingDirectory: $(workingDirectory)
       env:
         AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
         AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)

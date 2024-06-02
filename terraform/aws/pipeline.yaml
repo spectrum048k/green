@@ -1,9 +1,5 @@
 pool:
   vmImage: 'ubuntu-latest'
-
-variables:
-  terraformVersion: '1.0.11'
-  workingDirectory: 'terraform'
   
 variables:
 - group: 'AWS_TERRAFORM_PIPELINE'

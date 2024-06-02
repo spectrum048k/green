@@ -6,6 +6,10 @@ parameters:
   displayName: 'Destroy Resources'
   type: boolean
   default: true
+- name: runCheckovScan
+  displayName: 'Run Checkov Scan'
+  type: boolean
+  default: true
 
 variables:
 - group: 'AWS_TERRAFORM_PIPELINE'
@@ -29,6 +33,13 @@ stages:
         AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
         AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
         AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
+
+    - script: |
+        pip install checkov
+        checkov -d $(workingDirectory)
+      displayName: 'Run Checkov Scan'
+      condition: ${{ eq(parameters.runCheckovScan, true) }}
+      workingDirectory: $(workingDirectory)
 
     - script: |
         terraform plan -out=tfplan -var "bucket_name=$(bucketName)"

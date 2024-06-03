@@ -124,7 +124,7 @@ stages:
 
 - stage: Destroy
   dependsOn: Apply
-  condition: ${{ eq(parameters.destroyResources, true) }}
+  condition: and(succeeded(), ${{ eq(parameters.destroyResources, true) }})
   jobs:
   - job: TerraformDestroy
     displayName: 'Terraform Destroy'

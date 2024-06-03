@@ -46,9 +46,9 @@ stages:
         workingDirectory: $(workingDirectory)
 
     - task: Bash@3
+      condition: ${{ eq(parameters.runCheckovScan, true) }}
       displayName: 'Run Checkov Scan'
-      inputs:
-        condition: ${{ eq(parameters.runCheckovScan, true) }}
+      inputs:        
         targetType: 'inline'        
         workingDirectory: $(workingDirectory)
         script: |

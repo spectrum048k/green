@@ -35,6 +35,11 @@ stages:
         AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
 
     - script: |
+        terraform validate
+      displayName: 'Terraform Validate'
+      workingDirectory: $(workingDirectory)
+
+    - script: |
         pip install checkov
         checkov -d .
       displayName: 'Run Checkov Scan'

@@ -27,15 +27,15 @@ stages:
 
     - task: Bash@3
       displayName: 'Terraform Init'
+      env:
+        AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+        AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+        AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
       inputs:
-        targetType: 'inline'        
-        script: |
-          terraform init -input=false        
+        targetType: 'inline'
         workingDirectory: $(workingDirectory)
-        env:
-          AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
-          AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
-          AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
+        script: |
+          terraform init -input=false   
 
     - task: Bash@3
       displayName: 'Terraform Validate'
@@ -43,41 +43,43 @@ stages:
         targetType: 'inline'        
         script: |
           terraform validate      
-      workingDirectory: $(workingDirectory)
+        workingDirectory: $(workingDirectory)
 
     - task: Bash@3
       displayName: 'Run Checkov Scan'
       inputs:
+        condition: ${{ eq(parameters.runCheckovScan, true) }}
         targetType: 'inline'        
+        workingDirectory: $(workingDirectory)
         script:
           pip install checkov
           checkov -d .      
-      condition: ${{ eq(parameters.runCheckovScan, true) }}
-      workingDirectory: $(workingDirectory)
-
+      
     - task: Bash@3
       displayName: 'Run Terraform Tests'
+      env:
+        AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+        AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+        AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)      
       inputs:
         targetType: 'inline'        
         script:
           terraform test -var "bucket_name=$(bucketName)"      
       workingDirectory: $(workingDirectory)
+
+
+    - task: Bash@3
+      displayName: 'Terraform Plan'
       env:
         AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
         AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
         AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
-
-    - task: Bash@3
-      displayName: 'Terraform Plan'
       inputs:
         targetType: 'inline'        
         script:
           terraform plan -out=tfplan -var "bucket_name=$(bucketName)"      
       workingDirectory: $(workingDirectory)
-      env:
-        AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
-        AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
-        AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
+
 
     - task: PublishPipelineArtifact@1
       inputs:
@@ -94,15 +96,15 @@ stages:
 
     - task: Bash@3
       displayName: 'Terraform Init'
+      env:
+        AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+        AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+        AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)      
       inputs:
         targetType: 'inline'        
         script:
           terraform init -input=false      
       workingDirectory: $(workingDirectory)
-      env:
-        AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
-        AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
-        AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
 
     - task: DownloadPipelineArtifact@2
       inputs:
@@ -111,15 +113,15 @@ stages:
 
     - task: Bash@3
       displayName: 'Terraform Apply'
+      env:
+        AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+        AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+        AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)      
       inputs:
         targetType: 'inline'        
         script:
           terraform apply -auto-approve tfplan      
       workingDirectory: $(workingDirectory)
-      env:
-        AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
-        AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
-        AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
 
 - stage: Destroy
   dependsOn: Apply
@@ -131,24 +133,24 @@ stages:
 
     - task: Bash@3
       displayName: 'Terraform Init'
+      env:
+        AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+        AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+        AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)      
       inputs:
         targetType: 'inline'        
         script:
           terraform init -input=false      
       workingDirectory: $(workingDirectory)
-      env:
-        AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
-        AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
-        AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
 
     - task: Bash@3
       displayName: 'Terraform Destroy'
+      env:
+        AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+        AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+        AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)      
       inputs:
         targetType: 'inline'        
         script:
           terraform destroy -auto-approve -var "bucket_name=$(bucketName)"      
       workingDirectory: $(workingDirectory)
-      env:
-        AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
-        AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
-        AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)

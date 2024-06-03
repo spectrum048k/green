@@ -26,6 +26,11 @@ stages:
     steps:
 
     - script: |
+        terraform validate
+      displayName: 'Terraform Validate'
+      workingDirectory: $(workingDirectory)
+
+    - script: |
         terraform init -input=false
       displayName: 'Terraform Init'
       workingDirectory: $(workingDirectory)
@@ -33,11 +38,6 @@ stages:
         AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
         AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
         AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
-
-    - script: |
-        terraform validate
-      displayName: 'Terraform Validate'
-      workingDirectory: $(workingDirectory)
 
     - script: |
         pip install checkov
@@ -101,7 +101,8 @@ stages:
 
 - stage: Destroy
   dependsOn: Apply
-  condition: ${{ eq(parameters.destroyResources, true) }}
+  # condition: ${{ eq(parameters.destroyResources, true) }}
+  condition: and(succeeded(), eq(parameters.destroyResources, true))
   jobs:
   - job: TerraformDestroy
     displayName: 'Terraform Destroy'

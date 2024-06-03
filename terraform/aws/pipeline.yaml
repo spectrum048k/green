@@ -26,11 +26,11 @@ stages:
     steps:
 
     - task: Bash@3
+      displayName: 'Terraform Init'
       inputs:
         targetType: 'inline'        
         script: |
-          terraform init -input=false
-        displayName: 'Terraform Init'
+          terraform init -input=false        
         workingDirectory: $(workingDirectory)
         env:
           AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
@@ -38,29 +38,29 @@ stages:
           AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
 
     - task: Bash@3
+      displayName: 'Terraform Validate'
       inputs:
         targetType: 'inline'        
         script: |
-          terraform validate
-      displayName: 'Terraform Validate'
+          terraform validate      
       workingDirectory: $(workingDirectory)
 
     - task: Bash@3
+      displayName: 'Run Checkov Scan'
       inputs:
         targetType: 'inline'        
         script:
           pip install checkov
-          checkov -d .
-      displayName: 'Run Checkov Scan'
+          checkov -d .      
       condition: ${{ eq(parameters.runCheckovScan, true) }}
       workingDirectory: $(workingDirectory)
 
     - task: Bash@3
+      displayName: 'Run Terraform Tests'
       inputs:
         targetType: 'inline'        
         script:
-          terraform test -var "bucket_name=$(bucketName)"
-      displayName: 'Run Terraform Tests'
+          terraform test -var "bucket_name=$(bucketName)"      
       workingDirectory: $(workingDirectory)
       env:
         AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
@@ -68,11 +68,11 @@ stages:
         AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
 
     - task: Bash@3
+      displayName: 'Terraform Plan'
       inputs:
         targetType: 'inline'        
         script:
-          terraform plan -out=tfplan -var "bucket_name=$(bucketName)"
-      displayName: 'Terraform Plan'
+          terraform plan -out=tfplan -var "bucket_name=$(bucketName)"      
       workingDirectory: $(workingDirectory)
       env:
         AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
@@ -91,12 +91,13 @@ stages:
   - job: TerraformApply
     displayName: 'Terraform Apply'
     steps:   
+
     - task: Bash@3
+      displayName: 'Terraform Init'
       inputs:
         targetType: 'inline'        
         script:
-          terraform init -input=false
-      displayName: 'Terraform Init'
+          terraform init -input=false      
       workingDirectory: $(workingDirectory)
       env:
         AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
@@ -109,11 +110,11 @@ stages:
         targetPath: '$(workingDirectory)'
 
     - task: Bash@3
+      displayName: 'Terraform Apply'
       inputs:
         targetType: 'inline'        
         script:
-          terraform apply -auto-approve tfplan
-      displayName: 'Terraform Apply'
+          terraform apply -auto-approve tfplan      
       workingDirectory: $(workingDirectory)
       env:
         AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
@@ -129,11 +130,11 @@ stages:
     steps:
 
     - task: Bash@3
+      displayName: 'Terraform Init'
       inputs:
         targetType: 'inline'        
         script:
-          terraform init -input=false
-      displayName: 'Terraform Init'
+          terraform init -input=false      
       workingDirectory: $(workingDirectory)
       env:
         AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
@@ -141,11 +142,11 @@ stages:
         AWS_DEFAULT_REGION: $(AWS_DEFAULT_REGION)
 
     - task: Bash@3
+      displayName: 'Terraform Destroy'
       inputs:
         targetType: 'inline'        
         script:
-          terraform destroy -auto-approve -var "bucket_name=$(bucketName)"
-      displayName: 'Terraform Destroy'
+          terraform destroy -auto-approve -var "bucket_name=$(bucketName)"      
       workingDirectory: $(workingDirectory)
       env:
         AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
